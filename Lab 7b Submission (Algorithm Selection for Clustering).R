@@ -249,6 +249,7 @@ if (require("ggcorrplot")) {
                    repos = "https://cloud.r-project.org")
 }
 
+## caret ----
 if (require("caret")) {
   require("caret")
 } else {
@@ -256,129 +257,50 @@ if (require("caret")) {
                    repos = "https://cloud.r-project.org")
 }
 
+## tidyverse ----
+if (require("tidyverse")) {
+  require("tidyverse")
+} else {
+  install.packages("tidyverse", dependencies = TRUE,
+                   repos = "https://cloud.r-project.org")
+}
+
 # STEP 2. Load the Dataset ----
-# Source: http://insideairbnb.com/cape-town/
-# Save the dataset as "listings_summary_cape_town.csv" inside the data folder
 
-# License: https://creativecommons.org/licenses/by/4.0/
+library(readr)
+Wine <- read_csv("data/Wine.csv")
+View(Wine)
 
-# Data dictionary (metadata):
-# https://docs.google.com/spreadsheets/d/1iWCNJcSutYqpULSQHlNyGInUvHg2BoUGoNRIGa6Szc4/edit#gid=1322284596 # nolint
 
-# Assumptions (Disclaimers): http://insideairbnb.com/data-assumptions/
-
-airbnb_cape_town <-
-  read_csv("data/listings_summary_cape_town.csv",
-           col_types =
-           cols(id = col_character(),
-                name = col_character(),
-                host_id = col_integer(),
-                host_name = col_character(),
-                neighbourhood = col_character(),
-                neighbourhood_group = col_skip(),
-                room_type =
-                col_factor(levels =
-                           c("Entire home/apt",
-                             "Hotel room", "Private room",
-                             "Shared room")),
-                minimum_nights = col_integer(),
-                number_of_reviews = col_integer(),
-                last_review = col_date(format = "%Y-%m-%d"),
-                reviews_per_month = col_double(),
-                calculated_host_listings_count = col_integer(),
-                availability_365 = col_integer(),
-                number_of_reviews_ltm = col_integer(),
-                license = col_skip()))
-
-airbnb_cape_town$neighbourhood <- factor(airbnb_cape_town$neighbourhood)
-
-str(airbnb_cape_town)
-dim(airbnb_cape_town)
-head(airbnb_cape_town)
-summary(airbnb_cape_town)
+str(Wine)
+dim(Wine)
+head(Wine)
+summary(Wine)
 
 # STEP 3. Check for Missing Data and Address it ----
 # Are there missing values in the dataset?
-any_na(airbnb_cape_town)
+any_na(Wine)
 
 # How many?
-n_miss(airbnb_cape_town)
+n_miss(Wine)
 
 # What is the proportion of missing data in the entire dataset?
-prop_miss(airbnb_cape_town)
+prop_miss(Wine)
 
 # What is the number and percentage of missing values grouped by
 # each variable?
-miss_var_summary(airbnb_cape_town)
+miss_var_summary(Wine)
 
 # Which variables contain the most missing values?
-gg_miss_var(airbnb_cape_town)
+gg_miss_var(Wine)
 
 # Which combinations of variables are missing together?
-gg_miss_upset(airbnb_cape_town)
+gg_miss_upset(Wine)
 
 # Where are missing values located (the shaded regions in the plot)?
-vis_miss(airbnb_cape_town) +
+vis_miss(Wine) +
   theme(axis.text.x = element_text(angle = 80))
 
-## OPTION 1: Remove the observations with missing values ----
-# We can decide to remove all the observations that have missing values
-# as follows:
-airbnb_cape_town_removed_obs <- airbnb_cape_town %>% filter(complete.cases(.))
-
-# The initial dataset had 21,120 observations and 16 variables
-dim(airbnb_cape_town)
-
-# The filtered dataset has 16,205 observations and 16 variables
-dim(airbnb_cape_town_removed_obs)
-
-# Are there missing values in the dataset?
-any_na(airbnb_cape_town_removed_obs)
-
-## OPTION 2: Remove the variables with missing values ----
-# Alternatively, we can decide to remove the 2 variables that have missing data
-airbnb_cape_town_removed_vars <-
-  airbnb_cape_town %>%
-  dplyr::select(-last_review, -reviews_per_month)
-
-# The initial dataset had 21,120 observations and 16 variables
-dim(airbnb_cape_town)
-
-# The filtered dataset has 21,120 observations and 14 variables
-dim(airbnb_cape_town_removed_vars)
-
-# Are there missing values in the dataset?
-any_na(airbnb_cape_town_removed_vars)
-
-## OPTION 3: Perform Data Imputation ----
-
-# CAUTION:
-# 1. Avoid Over-imputation:
-# Be cautious when imputing dates, especially if it is
-# Missing Not at Random (MNAR).
-# Over-Imputing can introduce bias into your analysis. For example, if dates
-# are missing because of a specific event or condition, imputing dates might
-# not accurately represent the data.
-
-# 2. Consider the Business Context:
-# Dates often have a significant business or domain context. Imputing dates
-# may not always be appropriate, as it might distort the interpretation of
-# your data. For example, imputing order dates could lead to incorrect insights
-# into seasonality trends.
-
-# library(mice) # nolint
-# somewhat_correlated_variables <- quickpred(airbnb_cape_town, mincor = 0.3) # nolint
-
-# airbnb_cape_town_imputed <-
-#   mice(airbnb_cape_town, m = 11, method = "pmm",
-#        seed = 7, # nolint
-#        predictorMatrix = somewhat_correlated_variables)
-
-# The choice left is between OPTION 1 and OPTION 2:
-# Considering that the 2 variables had 23.3% missing data each,
-# we decide to remove the observations that have the missing data (OPTION 1)
-# as opposed to removing the entire variable just because 23.3% of its values
-# are missing (OPTION 2).
 
 # STEP 4. Perform EDA and Feature Selection ----
 ## Compute the correlations between variables ----
@@ -387,16 +309,15 @@ any_na(airbnb_cape_town_removed_vars)
 
 # Create a correlation matrix
 # Option 1: Basic Table
-cor(airbnb_cape_town_removed_obs[, c(3, 6, 7, 9, 10, 11, 13, 14, 15, 16)]) %>%
+cor(Wine[, c(6, 7, 10, 11)]) %>%
   View()
 
 # Option 2: Basic Plot
-cor(airbnb_cape_town_removed_obs[, c(3, 6, 7, 9, 10, 11, 13, 14, 15, 16)]) %>%
+cor(Wine[, c(6, 7, 10, 11)]) %>%
   corrplot(method = "square")
 
 # Option 3: Fancy Plot using ggplot2
-corr_matrix <- cor(airbnb_cape_town_removed_obs[, c(3, 6, 7, 9, 10, 11, 13, 14,
-                                                    15, 16)])
+corr_matrix <- cor(Wine[, c(6, 7, 10, 11)])
 
 p <- ggplot2::ggplot(data = reshape2::melt(corr_matrix),
                      ggplot2::aes(Var1, Var2, fill = value)) +
@@ -408,106 +329,60 @@ p <- ggplot2::ggplot(data = reshape2::melt(corr_matrix),
 
 ggcorrplot(corr_matrix, hc.order = TRUE, type = "lower", lab = TRUE)
 
-# The correlation plot shows a -0.06 correlation between the price and the
-# reviews_per_month. This is worth investigating further if the intention
-# of the business is to create clusters based on price.
-
-# Room_type, neighbourhood, date and other non-numeric variables and
-# categorical variables are not included in the correlation, but they can be
-# used as an additional dimension when plotting the scatter plot during EDA.
-
 ## Plot the scatter plots ----
-# A scatter plot to show the number of reviews against price
-# per room type
-ggplot(airbnb_cape_town_removed_obs,
-       aes(number_of_reviews, price,
-           color = room_type,
-           shape = room_type)) +
-  geom_point(alpha = 0.5) +
-  xlab("Number of Reviews") +
-  ylab("Daily Price in Rands")
+  # A scatter plot to show Phenols against Flavanoids
+ggplot(Wine, aes(x=Total_Phenols, y=Flavanoids)) +
+  geom_point() +
+  geom_smooth(method="lm", se=FALSE) +
+  labs(title="Wines Attributes",
+       subtitle="Relationship between Phenols and Flavanoids") +
+  theme_bw()
 
-# A scatter plot to show the number of reviews against price
-# per review year
-ggplot(airbnb_cape_town_removed_obs,
-       aes(number_of_reviews, price,
-           color = last_review)) +
-  geom_point(alpha = 0.5) +
-  xlab("Number of Reviews") +
-  ylab("Daily Price in Rands")
 
-# A scatter plot to show the minimum number of nights rented against price
-# per room type
-ggplot(airbnb_cape_town_removed_obs,
-       aes(minimum_nights, price,
-           color = room_type,
-           shape = room_type)) +
-  geom_point(alpha = 0.5) +
-  xlab("Minimum Number of Nights for Rent") +
-  ylab("Daily Price in Rands")
+# A scatter plot to show Alcohol against Malic Acid
+ggplot(Wine, aes(x=Alcohol, y=Malic_Acid)) +
+  geom_point() +
+  geom_smooth(method="lm", se=FALSE) +
+  labs(title="Wines Attributes",
+       subtitle="Relationship between Alcohol and Malic Acid") +
+  theme_bw()
 
-# A scatter plot to show the reviews in the last 12 months against the
-# reviews in the listing's lifetime per room type
-ggplot(airbnb_cape_town_removed_obs,
-       aes(number_of_reviews_ltm, reviews_per_month,
-           color = room_type,
-           shape = room_type)) +
-  geom_point(alpha = 0.5) +
-  xlab("The number of reviews in the last 12 months") +
-  ylab("The number of reviews in the listing's lifetime")
+# A scatter plot to show Magnesium against the Hue
+ggplot(Wine, aes(x=Magnesium, y=Hue)) +
+  geom_point() +
+  geom_smooth(method="lm", se=FALSE) +
+  labs(title="Wines Attributes",
+       subtitle="Relationship between Magnesium and Hue") +
+  theme_bw()
 
-# A scatter plot to show the reviews per month against the number of listings
-# the host has in the city per room type
-ggplot(airbnb_cape_town_removed_obs,
-       aes(reviews_per_month, calculated_host_listings_count,
-           color = room_type,
-           shape = room_type)) +
-  geom_point(alpha = 0.5) +
-  xlab("Reviews per Month") +
-  ylab("Number of Listings the Host has in the City")
+
 
 ## Transform the data ----
 # The K Means Clustering algorithm performs better when data transformation has
 # been applied. This helps to standardize the data making it easier to compare
 # multiple variables.
 
-summary(airbnb_cape_town_removed_obs)
-model_of_the_transform <- preProcess(airbnb_cape_town_removed_obs,
-                                     method = c("scale", "center"))
-print(model_of_the_transform)
-airbnb_cape_town_removed_obs_std <- predict(model_of_the_transform, # nolint
-                                            airbnb_cape_town_removed_obs)
-summary(airbnb_cape_town_removed_obs_std)
-sapply(airbnb_cape_town_removed_obs_std[, c(3, 6, 7, 9, 10, 11, 13, 14,
-                                            15, 16)], sd)
-
-## Select the features to use to create the clusters ----
-# OPTION 1: Use all the numeric variables to create the clusters
-airbnb_cape_town_vars <-
-  airbnb_cape_town_removed_obs_std[, c(3, 6, 7, 9, 10, 11, 13, 14,
-                                       15, 16)]
+summary(Wine)
+model_of_the_transform_wine <- preProcess(Wine,
+                                          method = c("scale", "center"))
+print(model_of_the_transform_wine)
+Wine_std <- predict(model_of_the_transform_wine, Wine)
+summary(Wine_std)
+sapply(Wine_std[, c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13)], sd)
 
 # OPTION 2: Use only the most significant variables to create the clusters
 # This can be informed by feature selection, or by the business case.
 
-# Suppose that the business case is that we need to know the clusters that
-# are related to the number of listings a host owns against the listings'
-# popularity (measured by number of reviews).
-
-# We need to find the ideal number of listings to own without negatively
-# impacting the popularity of the listing.
-
-airbnb_cape_town_vars <-
-  airbnb_cape_town_removed_obs_std[, c("reviews_per_month",
-                                       "calculated_host_listings_count")]
+Wine_vars <-
+  Wine_std[, c("Total_Phenols","Flavanoids")]
 
 # STEP 5. Create the clusters using the K-Means Clustering Algorithm ----
 # We start with a random guess of the number of clusters we need
 set.seed(7)
-kmeans_cluster <- kmeans(airbnb_cape_town_vars, centers = 3, nstart = 20)
+kmeans_cluster <- kmeans(Wine_vars, centers = 2, nstart = 20)
 
 # We then decide the maximum number of clusters to investigate
-n_clusters <- 8
+n_clusters <- 3
 
 # Initialize total within sum of squares error: wss
 wss <- numeric(n_clusters)
@@ -518,7 +393,7 @@ set.seed(7)
 # clusters that we want to investigate)
 for (i in 1:n_clusters) {
   # Use the K Means cluster algorithm to create each cluster
-  kmeans_cluster <- kmeans(airbnb_cape_town_vars, centers = i, nstart = 20)
+  kmeans_cluster <- kmeans(Wine_vars, centers = i, nstart = 20)
   # Save the within cluster sum of squares
   wss[i] <- kmeans_cluster$tot.withinss
 }
@@ -541,39 +416,27 @@ scree_plot +
   geom_hline(
     yintercept = wss,
     linetype = "dashed",
-    col = c(rep("#000000", 5), "#FF0000", rep("#000000", 2))
+    col = "#000000"  # Set a single color, e.g., black
   )
 
 # The plateau is reached at 6 clusters.
 # We therefore create the final cluster with 6 clusters
 # (not the initial 3 used at the beginning of this STEP.)
-k <- 6
+k <- 3
 set.seed(7)
 # Build model with k clusters: kmeans_cluster
-kmeans_cluster <- kmeans(airbnb_cape_town_vars, centers = k, nstart = 20)
+kmeans_cluster <- kmeans(Wine_vars, centers = k, nstart = 20)
 
 # STEP 6. Add the cluster number as a label for each observation ----
-airbnb_cape_town_removed_obs$cluster_id <- factor(kmeans_cluster$cluster)
+Wine_vars$cluster_id <- factor(kmeans_cluster$cluster)
 
 ## View the results by plotting scatter plots with the labelled cluster ----
-ggplot(airbnb_cape_town_removed_obs, aes(number_of_reviews, price,
+ggplot(Wine_vars, aes(Total_Phenols, Flavanoids,
                                          color = cluster_id)) +
   geom_point(alpha = 0.5) +
-  xlab("Number of Reviews") +
-  ylab("Price")
+  xlab("Total_Phenols") +
+  ylab("Flavanoids")
 
-ggplot(airbnb_cape_town_removed_obs,
-       aes(number_of_reviews_ltm, reviews_per_month, color = cluster_id)) +
-  geom_point(alpha = 0.5) +
-  xlab("The number of reviews in the last 12 months") +
-  ylab("The number of reviews in the listing's lifetime")
-
-ggplot(airbnb_cape_town_removed_obs,
-       aes(reviews_per_month, calculated_host_listings_count,
-           color = cluster_id)) +
-  geom_point(alpha = 0.5) +
-  xlab("Reviews per Month") +
-  ylab("Number of Listings the Host has in the City")
 
 # Note on Clustering for both Descriptive and Predictive Data Analytics ----
 # Clustering can be used for both descriptive and predictive analytics.
