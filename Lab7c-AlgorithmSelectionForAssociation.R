@@ -25,7 +25,7 @@
 #   Summary: https://rstudio.github.io/renv/
 #   More detailed article: https://rstudio.github.io/renv/articles/renv.html
 
-# "renv" It can be installed as follows:
+#"renv" It can be installed as follows:
 # if (!is.element("renv", installed.packages()[, 1])) {
 # install.packages("renv", dependencies = TRUE,
 # repos = "https://cloud.r-project.org") # nolint
@@ -632,7 +632,7 @@ summary(tr_stock_code)
 
 # STEP 2. Basic EDA ----
 # Create an item frequency plot for the top 10 items
-itemFrequencyPlot(tr_stock_code, topN = 10, type = "absolute",
+itemFrequencyPlot(tr, topN = 10, type = "absolute",
                   col = brewer.pal(8, "Pastel2"),
                   main = "Absolute Item Frequency Plot",
                   horiz = TRUE,
