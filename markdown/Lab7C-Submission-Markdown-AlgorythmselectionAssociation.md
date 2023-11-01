@@ -1,65 +1,63 @@
----
-title: "Business Intelligence Lab Submission Markdown"
-author: "Starfield"
-date: "11/1/2023"
-output:
-  github_document: 
-    toc: yes
-    toc_depth: 4
-    fig_width: 6
-    fig_height: 4
-    df_print: default
-editor_options:
-  chunk_output_type: console
-  markdown: 
-    wrap: 72
----
+Business Intelligence Lab Submission Markdown
+================
+Starfield
+11/1/2023
+
+- [Student Details](#student-details)
+- [Setup Chunk](#setup-chunk)
 
 # Student Details
 
-+----------------------------------+----------------------------------+
-| **Student ID Numbers and Names   | 1\. 135232 - Sadiki Hamisi       |
-| of Group Members**               |                                  |
-|                                  | 2\. 134782 - Yasmin Choma        |
-|                                  |                                  |
-|                                  | 3\. 134783 - Moses mbugua        |
-|                                  |                                  |
-|                                  | 4\. 122998 - Glenn Oloo          |
-+----------------------------------+----------------------------------+
-| **GitHub Classroom Group Name**  | Starfield                        |
-+----------------------------------+----------------------------------+
-| **Course Code**                  | BBT4206                          |
-+----------------------------------+----------------------------------+
-| **Course Name**                  | Business Intelligence II         |
-+----------------------------------+----------------------------------+
-| **Program**                      | Bachelor of Business Information |
-|                                  | Technology                       |
-+----------------------------------+----------------------------------+
-| **Semester Duration**            | 21^st^ August 2023 to 28^th^     |
-|                                  | November 2023                    |
-+----------------------------------+----------------------------------+
+<table style="width:97%;">
+<colgroup>
+<col style="width: 48%" />
+<col style="width: 48%" />
+</colgroup>
+<tbody>
+<tr class="odd">
+<td><strong>Student ID Numbers and Names of Group Members</strong></td>
+<td><p>1. 135232 - Sadiki Hamisi</p>
+<p>2. 134782 - Yasmin Choma</p>
+<p>3. 134783 - Moses mbugua</p>
+<p>4. 122998 - Glenn Oloo</p></td>
+</tr>
+<tr class="even">
+<td><strong>GitHub Classroom Group Name</strong></td>
+<td>Starfield</td>
+</tr>
+<tr class="odd">
+<td><strong>Course Code</strong></td>
+<td>BBT4206</td>
+</tr>
+<tr class="even">
+<td><strong>Course Name</strong></td>
+<td>Business Intelligence II</td>
+</tr>
+<tr class="odd">
+<td><strong>Program</strong></td>
+<td>Bachelor of Business Information Technology</td>
+</tr>
+<tr class="even">
+<td><strong>Semester Duration</strong></td>
+<td>21<sup>st</sup> August 2023 to 28<sup>th</sup> November 2023</td>
+</tr>
+</tbody>
+</table>
 
 # Setup Chunk
 
-**Note:** the following "*KnitR*" options have been set as the
-defaults:\
+**Note:** the following “*KnitR*” options have been set as the
+defaults:  
 `knitr::opts_chunk$set(echo = TRUE, warning = FALSE, eval = TRUE, collapse = FALSE, tidy.opts = list(width.cutoff = 80), tidy = TRUE)`.
 
 More KnitR options are documented here
 <https://bookdown.org/yihui/rmarkdown-cookbook/chunk-options.html> and
 here <https://yihui.org/knitr/options/>.
 
-```{r setup, include=FALSE}
-library(formatR)
-knitr::opts_chunk$set(echo = TRUE, warning = FALSE, eval = TRUE,
-                      collapse = FALSE, tidy = TRUE)
-```
-
-**Note:** the following "*R Markdown*" options have been set as the
+**Note:** the following “*R Markdown*” options have been set as the
 defaults:
 
 Installing and loading of required packages
-
 
 ``` code
 
@@ -163,7 +161,6 @@ transactions_single_format <- as(Groceries, "transactions")
 View(transactions_single_format)
 print(transactions_single_format)
 
-
 ```
 
 the second format
@@ -174,11 +171,11 @@ data("Groceries")
 transactions_basket_format <- as(Groceries, "transactions")
 View(transactions_basket_format)
 print(transactions_basket_format)
-
 ```
+
 loading the dataset
 
-```code
+``` code
 
 data("Groceries")
 dim(Groceries)
@@ -218,7 +215,6 @@ custom_data <- data.frame(
   trans_date = c("2023-01-01", "2023-01-01", "2023-01-02", "2023-01-03", "2023-01-03", "2023-01-03"),
   Description = c("Item1", "Item2", "Item1", "Item3", "Item4", "Item5")
 )
-
 ```
 
 Creating transactions based on Description
@@ -297,7 +293,6 @@ association_rules <- apriori(tr_groceries,
 summary(association_rules)
 inspect(association_rules)
 inspect(association_rules)
-
 ```
 
 Finding the specific rules
